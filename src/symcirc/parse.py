@@ -8,20 +8,23 @@ def preparse_source(words):
 
     :param words: the full split netlist line
     """
+    lower_words = [w.lower() for w in words]
     dc_sig = None
     if len(words) < 3:
         dc_sig = None
-    elif words[3].lower() == "dc":
-        dc_sig = words[4]
+    elif "dc" in lower_words:
+        dc_index = lower_words.index("dc")
+        dc_sig = words[dc_index+1]
     elif len(words) == 4:
         dc_sig = words[3]
 
     ac_sig = None
     try:
-        if words[5].lower() == "ac":
-            mag = words[6]
+        if "ac" in lower_words:
+            ac_index = lower_words.index("ac")
+            mag = words[ac_index+1]
             try:
-                phase = words[7] if words[7] not in RESERVED else None
+                phase = words[ac_index+2] if words[ac_index+2] not in RESERVED else None
             except IndexError:
                 phase = None
             ac_sig = [mag, phase]
@@ -29,7 +32,6 @@ def preparse_source(words):
         ac_sig = None
 
     tran_sig = None
-    lower_words = [w.lower() for w in words]
     if "sin" in lower_words:
         index = lower_words.index("sin")
         tran_sig = words[index:index + 6]
