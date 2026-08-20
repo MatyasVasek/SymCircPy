@@ -409,13 +409,13 @@ class IndependentSource(Component):
         # TODO: document options
         analysis_type = analysis_type.lower()
         if analysis_type == 'ac':
-            self.ac_val(form)
+            return self.ac_val(form)
         elif analysis_type == 'dc':
-            self.dc_val(form)
+            return self.dc_val(form)
         elif analysis_type == 'tf':
-            self.tf_val(form)
+            return self.tf_val(form)
         elif analysis_type == 'tran':
-            self.tran_val(form)
+            return self.tran_val(form)
 
     def dc_val(self, form="sym"):
         if form == "sym":
