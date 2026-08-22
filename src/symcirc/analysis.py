@@ -361,7 +361,13 @@ class Analysis:
         return eqn_matrix, solved_dict, symbols
 
     def _gauss_solve(self, eqn_matrix, symbols):
-        return sympy.solve_linear_system(eqn_matrix, *symbols)
+        solution_set = sympy.linsolve(eqn_matrix, *symbols)
+        # EmptySet means there is no solution
+        if solution_set is sympy.EmptySet:
+            return {}
+        # Extract the tuple from the FiniteSet
+        solution = next(iter(solution_set))
+        return dict(zip(symbols, solution))
 
     def _lu_solve(self, eqn_matrix, symbols):
         return sympy.solve_linear_system_LU(eqn_matrix, symbols)
