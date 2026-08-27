@@ -875,6 +875,7 @@ class PeriodicSwitch(Component):
         super().__init__(name, node1, node2)
         self.phase = phase
         self.netlist_keywords = ["S", "s"]
+        self.type = "s"
 
 
 class Short(Component):
