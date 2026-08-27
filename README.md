@@ -1,26 +1,52 @@
-# SymCirc
+# SymCircPy
 [![pypi version](https://img.shields.io/pypi/v/symcirc.svg)](https://pypi.python.org/pypi/symcirc)
 [![Downloads](https://static.pepy.tech/badge/symcirc)](https://pepy.tech/project/symcirc)
 [![Powered by SymPy](https://img.shields.io/badge/powered%20by-SymPy-Green.svg?style=flat&colorA=gray&colorB=green)](https://www.sympy.org/)
 ![Tests](https://github.com/MatyasVasek/SymCirc/actions/workflows/tests.yml/badge.svg)
 [![codecov](https://codecov.io/gh/MatyasVasek/SymCirc/branch/main/graph/badge.svg)](  https://codecov.io/gh/MatyasVasek/SymCirc)
 
-A lightweight python package for symbolic circuit analysis.
+A lightweight Python package for symbolic circuit analysis.
 
 ## Documentation
 
 Documentation is available on [GitHub Pages](https://matyasvasek.github.io/SymCirc/).
 
-## What can it do?
+---
 
-**SymCirc** currently offers symbolic and semisymbolic **DC**, **AC** and **transient** small signal circuit analysis.
-It supports the following ideal circuit elements: **resistors, inductors, capacitors, independent sources, controlled sources, ideal operational amplifiers and coupled inductors**.
-**BJT, MOS and diode** have models implemented only for AC and TF analysis.
+## What can SymCircPy do?
+
+### Symbolic and Semisymbolic Analysis
+**SymCircPy** currently offers symbolic and semisymbolic **DC**, **AC** and **transient** small-signal circuit analysis.
+It supports the following ideal circuit elements: **resistors, inductors, capacitors, independent sources, controlled sources, ideal operational amplifiers and coupled inductors with initial conditions**.
 Transient simulation allows for initial conditions of capacitors and standard/coupled inductors.
 
+### Spice-like netlist parsing
+A custom netlist parser allows the user to input circuits in the standard SPICE format. Note that this has some quirks (e.g. only circuit elements, subcircuits and models are alowed). Nested subcircuits are not supported. The netlist format is modeled to work well with the GEEC online circuit simulator.
+
+### Linearized transistors
+**BJT, MOS and diode** can be used in AC and TF analysis. The operating point has to be provided externaly. The model is constructed using the parasitic values provided.
+
+### Circuit model approximation 
+> **Work in progress**
+
+After parsing a netlist into a `Circuit` object, the `Circuit.approximate()` method can be used to approximate a large circuit into a simpler one according to the error control parameters.
+
+### Multiple construction methods and solvers
+ - **Tableau construction method**: to solve for all the voltages and currents in the circuit. (slower)
+
+ - **Two Graph Modified Nodal**: solves for nodal voltages and select currents that are not easy to derive after solving. Every other result can be obtained using methods of the `Analysis` class. (faster)
+
+ - **Sympy solve**: fast solve with the final results in a simplified form. Fully symbolic analysis is generally limited to a little over 10 symbolic elements due to symbolic explosion of the results. This is a well known limitation of symbolic analysis.
+
+> **Work in progress**
+ - **LED-DDD solve**: a custom layered expansion determinant decision diagram solver based on the work of **Shi, Guoyong, et al.** Very fast and capable of processing much larger circuits. This is an experimental feature included mostly for future experimentation with circuit approximation.
+
+
+
+
+---
 
 ## Install
-
 Use this command to install via pip
 ```
 pip install symcirc
@@ -42,6 +68,9 @@ Or you can build with this command:
 ```
 python setup.py sdist bdist_wheel
 ```
+
+---
+
 ## Examples
 See [examples](examples) for more insight into circuit analysis with SymCirc.
 ## Basic simulation example
