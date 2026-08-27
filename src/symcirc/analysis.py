@@ -22,7 +22,7 @@ class Analysis:
 
     :raise ValueError: If the analysis_type argument is invalid.
     """
-    SOLVERS = ['gauss', 'lu', 'ddd']
+    SOLVERS = ['gauss', 'lu', 'ddd', "solve", "solve_linear_system", "linsolve"]
     METHODS = ["tableau", "two_graph_node"]
     def __init__(self, circuit: Circuit, method: str = "tableau",
                  symbolic: bool = True, auto_eval: bool=False, precision: int = 6, sympy_ilt: bool = True,
@@ -323,15 +323,15 @@ class Analysis:
         # TODO: state machine to decide whether to use gauss, LU or DDD
 
         solved_dict = {}
-        if self.solver == "gauss":
+        if self.solver in ["gauss", "linsolve"]:
             memo = {}
             eqn_matrix, symbols = self._build_system_eqn()
             #self.abstract_matrix(eqn_matrix, memo)
-            solved_dict = self._gauss_solve(eqn_matrix, symbols)
+            solved_dict = self._linsolve(eqn_matrix, symbols)
             #self.unabstract_results(solved_dict, memo)
         elif self.solver == "lu":
             eqn_matrix, symbols = self._build_system_eqn()
-            solved_dict = self._lu_solve(eqn_matrix, symbols)
+            solved_dict = self._solve_linear_system_LU(eqn_matrix, symbols)
             for key in solved_dict:
                 solved_dict[key] = general_simplify(solved_dict[key])
         elif self.solver == "ddd":
@@ -346,6 +346,14 @@ class Analysis:
             for key in solved_dict:
                 solved_dict[key] = general_simplify(solved_dict[key])
             #self.unabstract_results(solved_dict, memo)
+        elif self.solver == "solve_linear_system":
+            eqn_matrix, symbols = self._build_system_eqn()
+            solved_dict = self._solve_linear_system(eqn_matrix, symbols)
+
+        elif self.solver == "solve":
+            eqn_matrix, symbols = self._build_system_eqn()
+            solved_dict = self._solve(eqn_matrix, symbols)
+            print(solved_dict)
 
         t1 = time.time()
         #print(f"Matrix solve time by {self.solver}: {t1-t0}")
@@ -360,7 +368,8 @@ class Analysis:
         #    solved_dict = {key: evalf(func, precision=self.precision) for key, func in solved_dict.items()}
         return eqn_matrix, solved_dict, symbols
 
-    def _gauss_solve(self, eqn_matrix, symbols):
+    def _linsolve(self, eqn_matrix, symbols):
+        # linsolve() is generally faster compared to solve_linear_system()
         solution_set = sympy.linsolve(eqn_matrix, *symbols)
         # EmptySet means there is no solution
         if solution_set is sympy.EmptySet:
@@ -369,7 +378,21 @@ class Analysis:
         solution = next(iter(solution_set))
         return dict(zip(symbols, solution))
 
-    def _lu_solve(self, eqn_matrix, symbols):
+    def _solve(self, eqn_matrix, symbols):
+        n_vars = len(symbols)
+
+        equations = [
+            sum(eqn_matrix[i, j] * symbols[j] for j in range(n_vars))
+            - eqn_matrix[i, n_vars]
+            for i in range(eqn_matrix.rows)
+        ]
+
+        return sympy.solve(equations, symbols, dict=True)[0]
+
+    def _solve_linear_system(self, eqn_matrix, symbols):
+        return sympy.solve_linear_system(eqn_matrix, *symbols)
+
+    def _solve_linear_system_LU(self, eqn_matrix, symbols):
         return sympy.solve_linear_system_LU(eqn_matrix, symbols)
 
     def _ddd_solve(self, eqn_matrix, symbols):
