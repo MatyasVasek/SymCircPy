@@ -352,7 +352,6 @@ class TGNBuilder:
             form = "sym"
         else:
             form = "rat"
-        print(self.analysis_type)
         val = c.v(form, self.analysis_type)
 
         n1v = self.index_tgn(v_nodes, node1, v_graph_collapses)
@@ -421,9 +420,9 @@ class TGNBuilder:
                 if c.type == "c":
                     # Capacitor Norton current: C * V(0)
                     if n1i is not None:
-                        S[n1i, 0] += y * c.init_cond
+                        S[n1i, 0] += c.val(self.is_symbolic) * c.init_cond
                     if n2i is not None:
-                        S[n2i, 0] += -y * c.init_cond
+                        S[n2i, 0] += -c.val(self.is_symbolic) * c.init_cond
 
                 elif c.type == "l":
                     if c.coupling is None:  # If theres no coupling handle IC by Norton current IC model

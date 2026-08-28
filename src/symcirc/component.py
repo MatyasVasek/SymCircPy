@@ -47,6 +47,14 @@ class Component:
         self.value_float = flt
         self.sym_value = sym
 
+    def val(self, symbolic=False, is_float=False):
+        if symbolic:
+            return self.sym_value
+        elif is_float:
+            return self.value_float
+        else:
+            return self.value
+
     def short(self):
         return Short(f"Short_{self.name}", self.node1, self.node2)
 
