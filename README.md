@@ -9,7 +9,7 @@ A lightweight Python package for symbolic circuit analysis.
 
 ## Documentation
 
-Documentation is available on [GitHub Pages](https://matyasvasek.github.io/SymCirc/).
+Documentation is available on [GitHub Pages](https://matyasvasek.github.io/SymCircPy/).
 
 ---
 
